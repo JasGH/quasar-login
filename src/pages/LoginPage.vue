@@ -41,9 +41,9 @@
       </p>
 
       <q-btn
-        :loading="loading[3]"
+        :loading="loading"
         color="primary"
-        @click="dologin(3)"
+        @click="dologin()"
         style="width: 95%"
       >
         sign in
@@ -66,10 +66,12 @@ import { useRouter } from "vue-router";
 export default {
   name: "LoginPage",
   setup() {
+    // const Mobile = ref(null);
+    // const Password = ref(null);
     const $q = useQuasar();
     const store = useStore();
     const router = useRouter();
-    const loading = ref([false, false, false, false, false, false]);
+    const loading = ref(false);
     const progress = ref(false);
     const errorMobile = ref(false);
     const errorPass = ref(false);
@@ -79,9 +81,9 @@ export default {
     function token(token) {
       store.commit("user/login", token);
     }
-    function dologin(number) {
+    function dologin() {
       // we set loading state
-      loading.value[number] = true;
+      loading.value = true;
       api
         .post("/login", {
           mobile: this.mobile,
@@ -91,7 +93,6 @@ export default {
           $q.cookies.set("user", response.data.data.user);
           token(response.data.data.access_token);
           $q.cookies.set("token", response.data.data.access_token, {
-            expires: response.data.data.token_expires_at,
             sameSite: "Strict",
           });
           router.push("/profile");
@@ -117,13 +118,13 @@ export default {
       // simulate a delay
 
       setTimeout(() => {
-        // we're done, we reset loading state
-        loading.value[number] = false;
+      // we're done, we reset loading state
+      loading.value = false;
       }, 1000);
     }
     return {
-      mobile: ref(""),
-      password: ref(""),
+      mobile:ref(""),
+      password:ref(""),
       isPwd: ref(true),
       loading,
       progress,
