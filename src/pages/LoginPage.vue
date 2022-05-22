@@ -1,57 +1,54 @@
 <template>
-  <div class="flex-center">
+  <div class="bg-info">
     <div
-      class="
-        q-gutter-md
-        rounded-borders
-        text-center
-        q-ma-xl q-py-lg q-px-md
-        bg-grey-1
-      "
+      class="full-width row justify-center content-center"
+      style="height: 100vh"
     >
-      <h4>login/sign up</h4>
-      <q-input
-        class="text-right"
-        v-model="mobile"
-        filled
-        :rules="[(val) => !!val || 'Field is required']"
-        hint="username"
-      />
-      <p v-if="errorMobile" style="color: red">
-        {{ mobileError.a }} / {{ mobileError.b }}
-      </p>
+      <div class="q-gutter-md text-center col-xs-7 q-py-lg q-px-md bg-grey-1">
+        <h4>login/sign up</h4>
+        <q-input
+          v-model="Mobile"
+          filled
+          :rules="[(val) => !!val || 'Field is required']"
+          hint="username"
+        />
+        <p v-if="errorMobile" style="color: red">
+          {{ mobileError.a }} / {{ mobileError.b }}
+        </p>
 
-      <q-input
-        v-model="password"
-        filled
-        :type="isPwd ? 'password' : 'text'"
-        hint="Password with toggle"
-        :rules="[(val) => !!val || 'Field is required']"
-      >
-        <template v-slot:append>
-          <q-icon
-            :name="isPwd ? 'visibility_off' : 'visibility'"
-            class="cursor-pointer"
-            @click="isPwd = !isPwd"
-          />
-        </template>
-      </q-input>
-      <p v-if="errorPass" style="color: red">
-        {{ passwordError.a }} / {{ passwordError.b }}
-      </p>
+        <q-input
+          v-model="Password"
+          filled
+          :type="isPwd ? 'password' : 'text'"
+          hint="Password with toggle"
+          :rules="[(val) => !!val || 'Field is required']"
+        >
+          <template v-slot:append>
+            <q-icon
+              :name="isPwd ? 'visibility_off' : 'visibility'"
+              class="cursor-pointer"
+              @click="isPwd = !isPwd"
+            />
+          </template>
+        </q-input>
+        <p v-if="errorPass" style="color: red">
+          {{ passwordError.a }} / {{ passwordError.b }}
+        </p>
 
-      <q-btn
-        :loading="loading"
-        color="primary"
-        @click="dologin()"
-        style="width: 95%"
-      >
-        sign in
-        <template v-slot:loading>
-          <q-spinner-hourglass class="on-left" />
-          Loading...
-        </template>
-      </q-btn>
+        <q-btn
+          :loading="loading"
+          color="primary"
+          @keyup.enter="dologin()"
+          @click="dologin()"
+          style="width: 95%"
+        >
+          sign in
+          <template v-slot:loading>
+            <q-spinner-hourglass class="on-left" />
+            Loading...
+          </template>
+        </q-btn>
+      </div>
     </div>
   </div>
 </template>
@@ -66,8 +63,9 @@ import { useRouter } from "vue-router";
 export default {
   name: "LoginPage",
   setup() {
-    // const Mobile = ref(null);
-    // const Password = ref(null);
+    const Mobile = ref(null);
+    const Password = ref(null);
+    const isPwd = ref(true);
     const $q = useQuasar();
     const store = useStore();
     const router = useRouter();
@@ -86,15 +84,16 @@ export default {
       loading.value = true;
       api
         .post("/login", {
-          mobile: this.mobile,
-          password: this.password,
+          mobile: Mobile.value,
+          password: Password.value,
         })
         .then((response) => {
-          $q.cookies.set("user", response.data.data.user);
+          // $q.cookies.set("user", response.data.data.user);
+          localStorage.setItem("user", JSON.stringify(response.data.data.user));
           token(response.data.data.access_token);
-          $q.cookies.set("token", response.data.data.access_token, {
-            sameSite: "Strict",
-          });
+          // $q.cookies.set("token", response.data.data.access_token, {
+          //   sameSite: "Strict",
+          // });
           router.push("/profile");
         })
         .catch((error) => {
@@ -118,14 +117,14 @@ export default {
       // simulate a delay
 
       setTimeout(() => {
-      // we're done, we reset loading state
-      loading.value = false;
+        // we're done, we reset loading state
+        loading.value = false;
       }, 1000);
     }
     return {
-      mobile:ref(""),
-      password:ref(""),
-      isPwd: ref(true),
+      Mobile,
+      Password,
+      isPwd,
       loading,
       progress,
       dologin,
